@@ -1,0 +1,75 @@
+%matplotlib inline
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import datetime
+import matplotlib.dates as mdates
+
+# time delta
+time_range = 12*14     # 14h
+dates = [datetime.datetime(2020,9,24,5,50,0) + datetime.timedelta(minutes=i*5) for i in range(time_range)]
+
+#job A
+jobA_list = (datetime.datetime(2020,9,24,11,0), datetime.datetime(2020,9,24,17,0))
+valsA = [1 if dates[i] in jobA_list else 0 for i in range(time_range)]
+
+#job B
+jobB_list = (
+    datetime.datetime(2020,9,24,6,0),
+    datetime.datetime(2020,9,24,17,0),
+    datetime.datetime(2020,9,24,17,0)
+)
+
+valsB = [1 if dates[i] in jobB_list else 0 for i in range(time_range)]
+
+#job C
+jobC_list = (
+    datetime.datetime(2020,9,24,9,0),
+    datetime.datetime(2020,9,24,11,0),
+    datetime.datetime(2020,9,24,13,0),
+    datetime.datetime(2020,9,24,15,0),
+    datetime.datetime(2020,9,24,17,0),
+    datetime.datetime(2020,9,24,19,0)
+)
+valsC = [1 if dates[i] in jobC_list else 0 for i in range(time_range)]
+
+#job D
+jobD_list = (
+    datetime.datetime(2020,9,24,7,0),
+    datetime.datetime(2020,9,24,9,0),
+    datetime.datetime(2020,9,24,18,0),
+    datetime.datetime(2020,9,24,22,0)
+)
+valsD = [1 if dates[i] in jobD_list else 0 for i in range(time_range)]
+
+#job E
+jobE_list = [datetime.datetime(2020,9,24,8,0,0) + datetime.timedelta(minutes=i*30) for i in range(time_range)]
+valsE = [1 if dates[i] in jobE_list else 0 for i in range(time_range)]
+
+# make dataset
+dataset = pd.DataFrame([valsA,valsB,valsC,valsD,valsE],columns=dates,index=['A','B','C','D','E'])
+
+fig, ax = plt.subplots(figsize=(12, 4))
+
+# plot
+for i in range(len(dataset)):
+    ax.bar(dataset.columns,dataset.iloc[i], bottom=dataset.iloc[:i].sum(),width=0.8/168)
+
+
+
+# Formatterでx軸の日付ラベルを月・日に設定
+xfmt = mdates.DateFormatter("%H:%M")
+ax.set(xlabel='datetime', ylabel='count')
+ax.legend(dataset.index)
+
+# DayLocatorで間隔をhに
+xloc = mdates.HourLocator()
+
+ax.xaxis.set_major_locator(xloc)
+ax.xaxis.set_major_formatter(xfmt)
+
+# x軸の範囲
+ax.set_xlim(datetime.datetime(2020,9,24,5,50), datetime.datetime(2020,9,24,22)) 
+ax.grid(True)
+
+plt.show()
